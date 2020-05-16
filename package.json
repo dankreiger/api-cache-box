@@ -1,0 +1,58 @@
+{
+  "name": "api-cache-box",
+  "version": "1.0.0",
+  "description": "Calls api and caches response",
+  "keywords": [
+    "cache",
+    "api"
+  ],
+  "homepage": "https://github.com/dankreiger/api-cache-box#readme",
+  "bugs": {
+    "url": "https://github.com/dankreiger/api-cache-box/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dankreiger/api-cache-box.git"
+  },
+  "license": "ISC",
+  "author": "Dan Kreiger <dan@dankreiger.com> (http://www.dankreiger.com/)",
+  "main": "./lib/main.js",
+  "types": "./lib/main.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "demo": "tar tvf $(npm pack)",
+    "prepublishOnly": "npm run build && npm run test:coverage",
+    "sort": "sort-package-json",
+    "test": "jest --config=jest.config.js",
+    "test:coverage": "npm test -- --coverage",
+    "test:watch": "npm test -- --watchAll",
+    "preversion": "npm run prepublishOnly",
+    "postversion": "git push && git push --tags"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,ts,json}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "@babel/preset-typescript": "^7.9.0",
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "@types/jest": "^25.2.2",
+    "babel-jest": "^26.0.1",
+    "husky": "^4.2.5",
+    "jest": "^26.0.1",
+    "lint-staged": "^10.2.2",
+    "prettier": "^2.0.5",
+    "sort-package-json": "^1.42.2"
+  },
+  "prepublish": "tsc"
+}
