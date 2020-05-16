@@ -96,4 +96,44 @@ describe("ApiCacheBox", () => {
     expect(failureCallback1).toHaveBeenCalledWith(mockError);
     expect(res).toEqual({});
   });
+
+  test("does not repeat requests to the same url", async () => {
+    const mockResponse1 = [{ id: 1 }];
+    (fetch as any).mockResponseOnce(JSON.stringify(mockResponse1));
+    const successCallback1 = jest.fn();
+    const failureCallback1 = jest.fn();
+    const apiFn = jest.fn(() => mockResponse1);
+
+    const params1: ApiCacheBoxParams = {
+      url: "https://api.sample.dev/search?size=36&page=1",
+      apiFn,
+      successCallback: successCallback1,
+      failureCallback: failureCallback1,
+    };
+
+    const params2: ApiCacheBoxParams = {
+      url: "https://api.sample.dev/search?size=36&page=1",
+      apiFn,
+      successCallback: successCallback1,
+      failureCallback: failureCallback1,
+    };
+
+    const results1 = await apiCacheBox(params1);
+
+    const cacheObj = { "size=36&page=1": mockResponse1 };
+    expect(results1).toEqual(cacheObj);
+    expect(apiFn).toHaveBeenCalledTimes(1);
+
+    expect(successCallback1).toHaveBeenCalledTimes(1);
+    expect(successCallback1).toHaveBeenCalledWith(mockResponse1);
+    expect(failureCallback1).toHaveBeenCalledTimes(0);
+
+    // second request
+    const results2 = await apiCacheBox(params2);
+    expect(results2).toEqual(results1);
+    expect(apiFn).toHaveBeenCalledTimes(1);
+    expect(successCallback1).toHaveBeenCalledTimes(1);
+    expect(successCallback1).toHaveBeenCalledWith(mockResponse1);
+    expect(failureCallback1).toHaveBeenCalledTimes(0);
+  });
 });

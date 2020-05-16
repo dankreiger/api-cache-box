@@ -10,6 +10,7 @@ export async function apiCacheBox({
   apiFn,
 }: ApiCacheBoxParams): Promise<ApiCacheBoxCache> {
   const cacheKey = new URL(url).searchParams.toString();
+  if (___apiCacheObject[cacheKey]) return ___apiCacheObject;
   try {
     let json;
     if (!apiFn) {
