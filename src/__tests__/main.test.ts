@@ -1,13 +1,36 @@
 import { apiCacheBox, bustApiCacheObject } from "../main";
 import { ApiCacheBoxParams } from "../ApiCacheBox";
+(global as any).fetch = require("jest-fetch-mock");
 
 describe("ApiCacheBox", () => {
   afterEach(() => {
     bustApiCacheObject();
+    (fetch as any).resetMocks();
   });
-  test("success: given a url it calls success callbacks and returns cache data object", async () => {
-    const mockResponse1 = "some data 1";
-    const mockResponse2 = "some data 2";
+  test("success: given a url it calls fetch api. Then it calls success callbacks and finally returns cache data object", async () => {
+    const mockResponse1 = [{ id: 1 }];
+    (fetch as any).mockResponseOnce(JSON.stringify(mockResponse1));
+    const successCallback1 = jest.fn();
+    const failureCallback1 = jest.fn();
+    const params1: ApiCacheBoxParams = {
+      url: "https://api.sample.dev/search?size=36&page=1",
+      successCallback: successCallback1,
+      failureCallback: failureCallback1,
+    };
+
+    const results1 = await apiCacheBox(params1);
+
+    const cacheObj = { "size=36&page=1": mockResponse1 };
+    expect(results1).toEqual(cacheObj);
+    expect(successCallback1).toHaveBeenCalledTimes(1);
+    expect(successCallback1).toHaveBeenCalledWith(mockResponse1);
+    expect(failureCallback1).toHaveBeenCalledTimes(0);
+  });
+
+  test("success: given a url and custom api function it calls custom api function. Then it calls success callbacks and returns cache data object", async () => {
+    const mockResponse1 = [{ id: 1 }];
+    const mockResponse2 = [{ id: 2 }];
+
     const apiFn1 = jest.fn(() => mockResponse1);
     const apiFn2 = jest.fn(() => mockResponse2);
     const successCallback1 = jest.fn();
@@ -16,15 +39,15 @@ describe("ApiCacheBox", () => {
     const failureCallback2 = jest.fn();
     const params1: ApiCacheBoxParams = {
       url: "https://api.sample.dev/search?size=36&page=1",
-      apiFn: apiFn1,
       successCallback: successCallback1,
       failureCallback: failureCallback1,
+      apiFn: apiFn1,
     };
     const params2: ApiCacheBoxParams = {
       url: "https://api.sample.dev/search?size=36&page=2",
-      apiFn: apiFn2,
       successCallback: successCallback2,
       failureCallback: failureCallback2,
+      apiFn: apiFn2,
     };
 
     const results1 = await apiCacheBox(params1);
@@ -61,9 +84,9 @@ describe("ApiCacheBox", () => {
     });
     const params1: ApiCacheBoxParams = {
       url: "https://api.sample.dev/search?size=36&page=1",
-      apiFn,
       successCallback: successCallback1,
       failureCallback: failureCallback1,
+      apiFn,
     };
     const res = await apiCacheBox(params1);
     expect(apiFn).toHaveBeenCalledTimes(1);

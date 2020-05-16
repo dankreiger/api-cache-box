@@ -6,8 +6,8 @@ export type ApiCacheBoxCache = {
 
 export interface ApiCacheBoxParams {
   url: string;
-  apiFn: (...args: any[]) => any;
   successCallback: CacheBoxCallback;
   failureCallback: CacheBoxCallback;
+  apiFn?: (...args: any[]) => any;
   cacheObject?: ApiCacheBoxCache;
 }

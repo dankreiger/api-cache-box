@@ -5,15 +5,21 @@ export const bustApiCacheObject = () => (___apiCacheObject = {});
 
 export async function apiCacheBox({
   url,
-  apiFn,
   successCallback,
   failureCallback,
+  apiFn,
 }: ApiCacheBoxParams): Promise<ApiCacheBoxCache> {
   const cacheKey = new URL(url).searchParams.toString();
   try {
-    const res = await apiFn(url);
-    ___apiCacheObject[cacheKey] = res;
-    successCallback(res);
+    let json;
+    if (!apiFn) {
+      const res = await fetch(url);
+      json = await res.json();
+    } else {
+      json = await apiFn(url);
+    }
+    ___apiCacheObject[cacheKey] = json;
+    successCallback(json);
   } catch (error) {
     failureCallback(error);
   } finally {
