@@ -1,7 +1,6 @@
 node_modules
 tsconfig.json
 jest.config.js
-babel.config.js
 src
 .travis.yml
 commitlint.config.js
